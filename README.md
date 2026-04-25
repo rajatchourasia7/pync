@@ -1,4 +1,4 @@
-# Path Cutter
+# pync
 
 A local Chrome extension that acts as a personal URL shortener. Define custom short names for long URLs and access them from the address bar.
 

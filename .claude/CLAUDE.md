@@ -1,4 +1,4 @@
-# Path Cutter — Technical Context
+# pync — Technical Context
 
 ## What is this?
 A Chrome extension (Manifest V3) that maps user-defined short names to URLs and redirects via the omnibox.
