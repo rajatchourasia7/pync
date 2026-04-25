@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "pync",
+  "version": "1.0.0",
+  "description": "A local Chrome extension for personal URL shortening",
+  "permissions": ["storage"],
+  "omnibox": {
+    "keyword": "pc"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup/popup.html"
+  }
+}
