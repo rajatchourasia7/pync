@@ -1,1 +1,46 @@
-<!-- Popup UI (to be implemented) -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <h1>pync</h1>
+    </header>
+
+    <section class="add-section">
+      <h2>Add new mapping</h2>
+      <form id="add-form">
+        <input
+          type="text"
+          id="shortname-input"
+          placeholder="short name (e.g. jira)"
+          autocomplete="off"
+          required
+        />
+        <input
+          type="url"
+          id="url-input"
+          placeholder="https://full-url.com"
+          required
+        />
+        <button type="submit" id="save-btn">Save</button>
+      </form>
+      <div id="message" class="message"></div>
+    </section>
+
+    <section class="list-section">
+      <h2>Mappings</h2>
+      <ul id="mappings-list"></ul>
+    </section>
+
+    <section class="io-section">
+      <button id="export-btn">Export</button>
+      <input type="file" id="import-input" accept=".json" hidden />
+      <button id="import-btn">Import</button>
+    </section>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
