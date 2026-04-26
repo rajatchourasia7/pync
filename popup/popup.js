@@ -41,6 +41,41 @@ async function tryDeleteMapping(shortname) {
   return { status: "success", shortname: shortname.trim() };
 }
 
+async function exportMappings() {
+  const mappings = await storage.getMappings();
+  return JSON.stringify(mappings, null, 2);
+}
+
+function parseImportData(jsonString) {
+  let data;
+  try {
+    data = JSON.parse(jsonString);
+  } catch {
+    throw new Error("Invalid JSON file");
+  }
+  if (data === null || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("Expected an object of {shortname: url}");
+  }
+  for (const [key, value] of Object.entries(data)) {
+    if (key.trim().length === 0) {
+      throw new Error("Empty short name in import data");
+    }
+    if (typeof value !== "string") {
+      throw new Error(`Invalid URL for "${key}"`);
+    }
+    if (!isValidUrl(value)) {
+      throw new Error(`Invalid URL for "${key}": ${value}`);
+    }
+  }
+  return data;
+}
+
+async function importMappings(mappings) {
+  for (const [shortname, url] of Object.entries(mappings)) {
+    await storage.setMapping(shortname, url);
+  }
+}
+
 if (typeof document !== "undefined") {
   document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("add-form");
@@ -188,6 +223,43 @@ if (typeof document !== "undefined") {
       clearMessage();
     });
 
+    const exportBtn = document.getElementById("export-btn");
+    const importBtn = document.getElementById("import-btn");
+    const importInput = document.getElementById("import-input");
+
+    exportBtn.addEventListener("click", async () => {
+      const json = await exportMappings();
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "pync-mappings.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      showMessage("Exported mappings", "success");
+    });
+
+    importBtn.addEventListener("click", () => {
+      importInput.click();
+    });
+
+    importInput.addEventListener("change", async () => {
+      const file = importInput.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const mappings = parseImportData(text);
+        await importMappings(mappings);
+        const count = Object.keys(mappings).length;
+        showMessage(`Imported ${count} mapping(s)`, "success");
+        await renderList();
+      } catch (err) {
+        showMessage(err.message, "error");
+      } finally {
+        importInput.value = "";
+      }
+    });
+
     renderList();
   });
 }
@@ -196,6 +268,9 @@ if (typeof module !== "undefined") {
   module.exports = {
     trySaveMapping,
     tryDeleteMapping,
+    exportMappings,
+    parseImportData,
+    importMappings,
     isValidShortname,
     isValidUrl,
   };

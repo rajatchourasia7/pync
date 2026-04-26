@@ -1,6 +1,12 @@
 const { resetStore } = require("./chrome-mock");
 const { setMapping, getMapping } = require("../src/storage");
-const { trySaveMapping, tryDeleteMapping } = require("../popup/popup");
+const {
+  trySaveMapping,
+  tryDeleteMapping,
+  exportMappings,
+  parseImportData,
+  importMappings,
+} = require("../popup/popup");
 
 beforeEach(() => {
   resetStore();
@@ -71,5 +77,76 @@ describe("tryDeleteMapping", () => {
   test("returns error for empty shortname", async () => {
     const result = await tryDeleteMapping("");
     expect(result.status).toBe("error");
+  });
+});
+
+describe("exportMappings", () => {
+  test("returns empty object as JSON string when nothing stored", async () => {
+    const result = await exportMappings();
+    expect(JSON.parse(result)).toEqual({});
+  });
+
+  test("returns all mappings as JSON string", async () => {
+    await setMapping("jira", "https://jira.com");
+    await setMapping("wiki", "https://wiki.com");
+    const result = await exportMappings();
+    expect(JSON.parse(result)).toEqual({
+      jira: "https://jira.com",
+      wiki: "https://wiki.com",
+    });
+  });
+});
+
+describe("parseImportData", () => {
+  test("returns parsed mappings for valid JSON", () => {
+    const result = parseImportData(
+      '{"jira": "https://jira.com", "wiki": "https://wiki.com"}'
+    );
+    expect(result).toEqual({
+      jira: "https://jira.com",
+      wiki: "https://wiki.com",
+    });
+  });
+
+  test("throws for invalid JSON", () => {
+    expect(() => parseImportData("not json")).toThrow();
+  });
+
+  test("throws for non-object root", () => {
+    expect(() => parseImportData('"string"')).toThrow();
+    expect(() => parseImportData("[1, 2]")).toThrow();
+    expect(() => parseImportData("null")).toThrow();
+  });
+
+  test("throws if any value is not a string", () => {
+    expect(() => parseImportData('{"jira": 42}')).toThrow();
+  });
+
+  test("throws if any value is not a valid URL", () => {
+    expect(() => parseImportData('{"jira": "not-a-url"}')).toThrow();
+  });
+
+  test("throws for empty short name", () => {
+    expect(() => parseImportData('{"": "https://jira.com"}')).toThrow();
+  });
+});
+
+describe("importMappings", () => {
+  test("saves new mappings", async () => {
+    await importMappings({ jira: "https://jira.com" });
+    expect(await getMapping("jira")).toBe("https://jira.com");
+  });
+
+  test("overwrites existing mappings on conflict", async () => {
+    await setMapping("jira", "https://old.com");
+    await importMappings({ jira: "https://new.com" });
+    expect(await getMapping("jira")).toBe("https://new.com");
+  });
+
+  test("preserves existing mappings not in the import", async () => {
+    await setMapping("wiki", "https://wiki.com");
+    await importMappings({ jira: "https://jira.com" });
+    expect(await getMapping("wiki")).toBe("https://wiki.com");
+    expect(await getMapping("jira")).toBe("https://jira.com");
   });
 });
