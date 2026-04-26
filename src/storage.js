@@ -16,6 +16,11 @@ async function setMapping(shortname, url) {
   await chrome.storage.local.set({ [STORAGE_KEY]: mappings });
 }
 
+async function hasMapping(shortname) {
+  const mappings = await getMappings();
+  return Object.prototype.hasOwnProperty.call(mappings, shortname);
+}
+
 async function deleteMapping(shortname) {
   const mappings = await getMappings();
   delete mappings[shortname];
@@ -23,5 +28,11 @@ async function deleteMapping(shortname) {
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { getMappings, getMapping, setMapping, deleteMapping };
+  module.exports = {
+    getMappings,
+    getMapping,
+    setMapping,
+    deleteMapping,
+    hasMapping,
+  };
 }

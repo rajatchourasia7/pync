@@ -4,6 +4,7 @@ const {
   getMapping,
   setMapping,
   deleteMapping,
+  hasMapping,
 } = require("../src/storage");
 
 beforeEach(() => {
@@ -52,6 +53,25 @@ describe("setMapping", () => {
     await setMapping("jira", "https://new.com");
     const result = await getMapping("jira");
     expect(result).toBe("https://new.com");
+  });
+});
+
+describe("hasMapping", () => {
+  test("returns false when no mappings exist", async () => {
+    const result = await hasMapping("jira");
+    expect(result).toBe(false);
+  });
+
+  test("returns false for a non-existent short name", async () => {
+    await setMapping("wiki", "https://wiki.com");
+    const result = await hasMapping("jira");
+    expect(result).toBe(false);
+  });
+
+  test("returns true for an existing short name", async () => {
+    await setMapping("jira", "https://jira.com");
+    const result = await hasMapping("jira");
+    expect(result).toBe(true);
   });
 });
 
