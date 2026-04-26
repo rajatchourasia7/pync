@@ -41,6 +41,11 @@ section:last-child {
   gap: 6px;
 }
 
+.form-actions {
+  display: flex;
+  gap: 6px;
+}
+
 input[type="text"],
 input[type="url"] {
   padding: 6px 8px;

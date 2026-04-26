@@ -1,6 +1,6 @@
 const { resetStore } = require("./chrome-mock");
 const { setMapping, getMapping } = require("../src/storage");
-const { trySaveMapping } = require("../popup/popup");
+const { trySaveMapping, tryDeleteMapping } = require("../popup/popup");
 
 beforeEach(() => {
   resetStore();
@@ -52,5 +52,24 @@ describe("trySaveMapping", () => {
     expect(result.status).toBe("success");
     expect(await getMapping("jira")).toBe("https://jira.com");
     expect(await getMapping("  jira  ")).toBeUndefined();
+  });
+});
+
+describe("tryDeleteMapping", () => {
+  test("deletes an existing mapping", async () => {
+    await setMapping("jira", "https://jira.com");
+    const result = await tryDeleteMapping("jira");
+    expect(result.status).toBe("success");
+    expect(await getMapping("jira")).toBeUndefined();
+  });
+
+  test("returns success even when mapping does not exist", async () => {
+    const result = await tryDeleteMapping("missing");
+    expect(result.status).toBe("success");
+  });
+
+  test("returns error for empty shortname", async () => {
+    const result = await tryDeleteMapping("");
+    expect(result.status).toBe("error");
   });
 });

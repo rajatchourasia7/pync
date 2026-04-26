@@ -10,7 +10,7 @@
     </header>
 
     <section class="add-section">
-      <h2>Add new mapping</h2>
+      <h2 id="form-heading">Add new mapping</h2>
       <form id="add-form">
         <input
           type="text"
@@ -25,7 +25,12 @@
           placeholder="https://full-url.com"
           required
         />
-        <button type="submit" id="save-btn">Save</button>
+        <div class="form-actions">
+          <button type="submit" id="save-btn">Save</button>
+          <button type="button" id="cancel-btn" class="secondary" hidden>
+            Cancel
+          </button>
+        </div>
       </form>
       <div id="message" class="message"></div>
     </section>
