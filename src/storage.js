@@ -27,12 +27,17 @@ async function deleteMapping(shortname) {
   await chrome.storage.local.set({ [STORAGE_KEY]: mappings });
 }
 
+const pyncStorage = {
+  getMappings,
+  getMapping,
+  setMapping,
+  deleteMapping,
+  hasMapping,
+};
+
 if (typeof module !== "undefined") {
-  module.exports = {
-    getMappings,
-    getMapping,
-    setMapping,
-    deleteMapping,
-    hasMapping,
-  };
+  module.exports = pyncStorage;
+}
+if (typeof self !== "undefined") {
+  self.pyncStorage = pyncStorage;
 }
