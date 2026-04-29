@@ -25,6 +25,10 @@ const chrome = {
     onInputEntered: {
       addListener: jest.fn(),
     },
+    onInputChanged: {
+      addListener: jest.fn(),
+    },
+    setDefaultSuggestion: jest.fn(),
   },
   tabs: {
     update: jest.fn(),
